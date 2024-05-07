@@ -1,0 +1,12 @@
+{
+  "name": "aws",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "deploy": "cd backend && npm run build && cd .. && cd frontend && npm run build && cd .. && cd infrastructure && npm run deploy"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
