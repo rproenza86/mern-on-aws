@@ -6,4 +6,6 @@ AWS workshop building a MERN stack web app.
 2. Create Rest service with Lambda and AWS Gateway
    1. Make request to backend from the frontend 
 3. Add DynamoDB to store data
-4. Add services to create a TODO
+4. Add CRUD TODOs services:
+   1. Create TODO
+   2. Get all TODOs

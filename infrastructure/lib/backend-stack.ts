@@ -12,35 +12,17 @@ export class BackendConstruct extends Construct {
         super(scope, id);
 
         // Add API Gateway
-        const api = new RestApi(this, 'HelloWorldApi', {
-            restApiName: 'Hello World Service',
-            description: 'This service serves the hello world lambda.',
+        const api = new RestApi(this, 'TodoApiGw', {
+            restApiName: 'TODOs API Service',
+            description: 'This service serves the lambda of the TODO web app.',
             defaultCorsPreflightOptions: {
                 allowOrigins: Cors.ALL_ORIGINS,
                 allowHeaders: ['*'],
                 allowMethods: Cors.ALL_METHODS
             }
         });
-
-        // Example Lambda function
-        const helloWorldLambda = new lambda.Function(this, 'HelloWorldLambda', {
-            runtime: lambda.Runtime.NODEJS_20_X,
-            handler: 'index.handler', // This should match your file name and export
-            code: lambda.Code.fromAsset('../backend/dist/lambdas/helloWorld'), // Path to the Lambda code
-        });
-        // Define the /helloWorld resource
-        const helloWorldResource = api.root.addResource('helloWorld');
-
-        // Lambda integration
-        const lambdaIntegration = new LambdaIntegration(helloWorldLambda, {
-            requestTemplates: { "application/json": '{ "statusCode": 200 }' }
-        });
-        // Adding GET method to /helloWorld resource
-        helloWorldResource.addMethod('GET', lambdaIntegration);
-        // Output API endpoint
-        new cdk.CfnOutput(this, 'APIEndpoint', {
-            value: `${api.url}helloWorld`
-        });
+        // Define the /todo resource path
+        const todoResource = api.root.addResource('todo');
 
         // Create TODO Lambda function
         const createTodoLambda = new lambda.Function(this, 'CreateTodoLambda', {
@@ -53,14 +35,31 @@ export class BackendConstruct extends Construct {
         });
         // Grant the Lambda function permissions to write to the DynamoDB table
         props.todoTable.grantWriteData(createTodoLambda);
-        // Define the /todo resource path
-        const todoResource = api.root.addResource('todo');
         // Lambda integration
         const createTodoLambdaIntegration = new LambdaIntegration(createTodoLambda, {
             requestTemplates: { "application/json": '{ "statusCode": 200 }' }
         });
         // Adding POST method to /todo resource to create a TODO
         todoResource.addMethod('POST', createTodoLambdaIntegration);
+
+        // GET TODO Lambda function
+        const getTodoLambda = new lambda.Function(this, 'GetTodosLambda', {
+            runtime: lambda.Runtime.NODEJS_20_X,
+            handler: 'getTodos.handler', // This should match your file name and export
+            code: lambda.Code.fromAsset('../backend/dist/lambdas/todos'), // Path to the Lambda code
+            environment: {
+                TODO_TABLE_NAME: props.todoTable.tableName
+            }
+        });
+        // Grant the Lambda function permissions to read to the DynamoDB table
+        props.todoTable.grantReadData(getTodoLambda);
+        // Lambda integration
+        const getTodoLambdaIntegration = new LambdaIntegration(getTodoLambda, {
+            requestTemplates: { "application/json": '{ "statusCode": 200 }' }
+        });
+        // Adding GET method to /todo resource to fetch all TODOs
+        todoResource.addMethod('GET', getTodoLambdaIntegration);
+
         // Output API endpoint
         new cdk.CfnOutput(this, 'APITodoEndpoint', {
             value: `${api.url}todo`
