@@ -11,3 +11,5 @@ AWS workshop building a MERN stack web app.
    2. Get all TODOs
    3. Update TODO
    4. Delete TODO
+5. Create Web app
+   1. List all TODOs
