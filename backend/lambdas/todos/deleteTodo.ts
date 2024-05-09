@@ -25,8 +25,6 @@ export const handler: APIGatewayProxyHandler = async (event) => {
             }
         };
 
-        console.log(`Deleting TODO with`, params);
-
         await dynamoDb.delete(params).promise();
 
         return {

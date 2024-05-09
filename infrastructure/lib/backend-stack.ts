@@ -23,6 +23,7 @@ export class BackendConstruct extends Construct {
         });
         // Define the /todo resource path
         const todoResource = api.root.addResource('todo');
+        const singleTodoResource = todoResource.addResource('{todoId}');
 
         // Create TODO Lambda function
         const createTodoLambda = new lambda.Function(this, 'CreateTodoLambda', {
@@ -61,6 +62,21 @@ export class BackendConstruct extends Construct {
         todoResource.addMethod('GET', getTodoLambdaIntegration);
 
 
+        // Lambda function for updating a TODO
+        const updateTodoLambda = new lambda.Function(this, 'UpdateTodoLambda', {
+            runtime: lambda.Runtime.NODEJS_20_X,
+            handler: 'updateTodo.handler',
+            code: lambda.Code.fromAsset('../backend/dist/lambdas/todos'),
+            environment: {
+                TODO_TABLE_NAME: props.todoTable.tableName
+            }
+        });
+        // Grant the Lambda function permissions to delete from the DynamoDB table
+        props.todoTable.grantReadWriteData(updateTodoLambda);
+        // Set up the API Gateway endpoint for DELETE requests
+        singleTodoResource.addMethod('PUT', new LambdaIntegration(updateTodoLambda));
+
+
         // Lambda function for deleting TODOs
         const deleteTodoLambda = new lambda.Function(this, 'DeleteTodoLambda', {
             runtime: lambda.Runtime.NODEJS_20_X,
@@ -73,7 +89,6 @@ export class BackendConstruct extends Construct {
         // Grant the Lambda function permissions to delete from the DynamoDB table
         props.todoTable.grantReadWriteData(deleteTodoLambda);
         // Set up the API Gateway endpoint for DELETE requests
-        const singleTodoResource = todoResource.addResource('{todoId}');
         singleTodoResource.addMethod('DELETE', new LambdaIntegration(deleteTodoLambda));
 
         // Output API endpoint
