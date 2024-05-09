@@ -4,7 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "deploy": "cd backend && npm run build && cd .. && cd frontend && npm run build && cd .. && cd infrastructure && npm run deploy"
+    "synth": "cd infrastructure && npm run synth",
+    "backend:build": "cd backend && npm run build",
+    "frontend:build": "cd frontend && npm run build",
+    "deploy": "cd backend && npm run build && cd .. && cd frontend && npm run build && cd .. && cd infrastructure && npm run deploy",
+    "destroy": "cd infrastructure && npm run destroy"
   },
   "keywords": [],
   "author": "",

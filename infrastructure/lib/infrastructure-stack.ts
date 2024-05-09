@@ -3,6 +3,7 @@ import { BlockPublicAccess, BucketAccessControl } from 'aws-cdk-lib/aws-s3';
 import { aws_s3 as s3, aws_cloudfront as cloudfront, aws_s3_deployment as s3deploy, CfnOutput } from 'aws-cdk-lib';
 
 import { BackendConstruct} from './backend-stack';
+import { DataBaseConstruct } from './database-stack';
 
 export class TodoAppStack extends cdk.Stack {
   constructor(scope: cdk.App, id: string, props?: cdk.StackProps) {
@@ -42,7 +43,10 @@ export class TodoAppStack extends cdk.Stack {
       value: distribution.distributionDomainName,
     });
 
+    // Add database resources
+    const db = new DataBaseConstruct(this, 'DataBaseService');
+
     // Add backend resources
-    new BackendConstruct(this, 'BackendConstruct');
+    new BackendConstruct(this, 'BackendServices', { todoTable: db.todoTable });
   }
 }
