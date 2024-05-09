@@ -60,6 +60,22 @@ export class BackendConstruct extends Construct {
         // Adding GET method to /todo resource to fetch all TODOs
         todoResource.addMethod('GET', getTodoLambdaIntegration);
 
+
+        // Lambda function for deleting TODOs
+        const deleteTodoLambda = new lambda.Function(this, 'DeleteTodoLambda', {
+            runtime: lambda.Runtime.NODEJS_20_X,
+            handler: 'deleteTodo.handler',
+            code: lambda.Code.fromAsset('../backend/dist/lambdas/todos'),
+            environment: {
+                TODO_TABLE_NAME: props.todoTable.tableName
+            }
+        });
+        // Grant the Lambda function permissions to delete from the DynamoDB table
+        props.todoTable.grantReadWriteData(deleteTodoLambda);
+        // Set up the API Gateway endpoint for DELETE requests
+        const singleTodoResource = todoResource.addResource('{todoId}');
+        singleTodoResource.addMethod('DELETE', new LambdaIntegration(deleteTodoLambda));
+
         // Output API endpoint
         new cdk.CfnOutput(this, 'APITodoEndpoint', {
             value: `${api.url}todo`
