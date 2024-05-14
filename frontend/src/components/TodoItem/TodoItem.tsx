@@ -3,6 +3,7 @@ import { Checkbox, Field, Label } from '@headlessui/react'
 
 import { Todo } from '../../types';
 import AddTodo from '../AddTodo/AddTodo';
+import SuccessToast from '../Toasts/SuccessToast';
 import { deleteTodo, updateTodo } from '../../services/api';
 
 interface TodoItemProps {
@@ -13,10 +14,12 @@ interface TodoItemProps {
 const TodoItem: React.FC<TodoItemProps> = ({ todo, refreshTodos }) => {
     const [enabled, setEnabled] = useState(todo.Status === 'done');
     const [isAddTodoOpen, setIsAddTodoOpen] = useState(false);
+    const [message, setMessage] = useState('');
 
     const handleDeleteTodo = async () => {
         try {
             await deleteTodo(todo.TodoID, todo.CreatedAt);
+            setMessage('TODO deleted successfully!');
             refreshTodos();
         } catch (err) {
             console.error(err);
@@ -38,6 +41,7 @@ const TodoItem: React.FC<TodoItemProps> = ({ todo, refreshTodos }) => {
 
     return (
         <>
+         {message && <SuccessToast message={message} onClose={() => setMessage('')} />}
         <div className="todo-item flex flex-col sm:flex-row justify-between items-start sm:items-center p- bg-white shadow-lg rounded-lg my-5 relative rounded-xl overflow-visible p-8">
             <div className="flex items-center space-x-2 mb-2 sm:mb-0 content-center">
                 {enabled ?
