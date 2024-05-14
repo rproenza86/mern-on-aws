@@ -1,37 +1,29 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { ArrowPathIcon } from '@heroicons/react/24/solid'
 
-import { Todo, Todos } from '../../types';
+import { Todo } from '../../types';
 import TodoItem from '../TodoItem/TodoItem';
-import { fetchTodos } from '../../services/api';
+import { fetchTodos } from '../../state/ActionCreators';
+import { GlobalContext, GlobalContextType } from '../../state/GlobalContext';
 
 const TodoList: React.FC = () => {
-    const [todos, setTodos] = useState<Todos>([]);
-
-    const refreshTodos = async () => {
-        try {
-            setTodos([]);
-            const data = await fetchTodos();
-            setTodos(data);
-        } catch (err) {
-            console.error(err);
-        }
-    };
+    const { state, dispatch } = useContext(GlobalContext) as GlobalContextType;
+    const { todos, loading } = state;
 
     useEffect(() => {
-        fetchTodos().then((data: Todos) => setTodos(data));
-    }, []);
+        fetchTodos()(dispatch)
+    }, [dispatch]);
 
     return (
         <div className="max-w-4xl mx-auto">
             <h2 className="text-xl font-bold my-4">TODO List</h2>
-            {todos.length === 0 && <div className="flex justify-center items-center text-2xl">
+            {loading && <div className="flex justify-center items-center text-2xl">
                 <ArrowPathIcon className="animate-spin h-16 w-16" />
                 Loading ...
             </div>}
 
             {todos.map((todo: Todo) => (
-                <TodoItem key={todo.TodoID} todo={todo} refreshTodos={refreshTodos}/>
+                <TodoItem key={todo.TodoID} todo={todo}/>
             ))}
         </div>
     );

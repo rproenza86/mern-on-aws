@@ -1,24 +1,30 @@
-import React, { useRef, useState, Fragment } from 'react';
+import React, { useRef, useState, Fragment, useContext } from 'react';
 import { ListBulletIcon } from '@heroicons/react/24/solid';
 import { Dialog, Transition, Textarea } from '@headlessui/react';
 
 import { Todo } from '../../types';
 import SuccessToast from '../Toasts/SuccessToast';
+import { fetchTodos } from '../../state/ActionCreators';
 import { createTodo, updateTodo } from '../../services/api';
+import { GlobalContext, GlobalContextType } from '../../state/GlobalContext';
 
 interface AddTodoProps {
     isOpen: boolean;
     closeModal: () => void;
     todo?: Todo;
-    refreshTodos: () => Promise<void>;
 }
 
-const AddTodo: React.FC<AddTodoProps> = ({ isOpen, closeModal, todo, refreshTodos }) => {
+const AddTodo: React.FC<AddTodoProps> = ({ isOpen, closeModal, todo }) => {
+    const { dispatch } = useContext(GlobalContext) as GlobalContextType;
     const [title, setTitle] = useState(todo?.Title ?? '');
     const [description, setDescription] = useState(todo?.Description ?? '');
     const [status] = useState(todo?.Status ?? 'pending');
     const [message, setMessage] = useState('');
     const [error, setError] = useState('');
+
+    const refreshTodos = async () => {
+        fetchTodos()(dispatch)
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();

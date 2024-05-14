@@ -89,6 +89,7 @@ export class BackendConstruct extends Construct {
         // Grant the Lambda function permissions to delete from the DynamoDB table
         props.todoTable.grantReadWriteData(deleteTodoLambda);
         // Set up the API Gateway endpoint for DELETE requests
+        // <API>/todo/{todoId}
         singleTodoResource.addMethod('DELETE', new LambdaIntegration(deleteTodoLambda));
 
         // Output API endpoint

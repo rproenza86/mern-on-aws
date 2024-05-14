@@ -5,7 +5,7 @@ const dynamoDb = new AWS.DynamoDB.DocumentClient();
 const TABLE_NAME = process.env.TODO_TABLE_NAME ?? '';
 
 export const handler: APIGatewayProxyHandler = async (event) => {
-    const todoId = event.pathParameters ? event.pathParameters.todoId : null;    
+    const todoId = event.pathParameters?.todoId ?? null;    
     const createdAt = event.queryStringParameters ? event.queryStringParameters.createdAt : null;
 
     if (!todoId || !createdAt) {

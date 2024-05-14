@@ -1,20 +1,27 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { Checkbox, Field, Label } from '@headlessui/react'
 
 import { Todo } from '../../types';
 import AddTodo from '../AddTodo/AddTodo';
 import SuccessToast from '../Toasts/SuccessToast';
+import { fetchTodos } from '../../state/ActionCreators';
 import { deleteTodo, updateTodo } from '../../services/api';
+import { GlobalContext, GlobalContextType } from '../../state/GlobalContext';
 
 interface TodoItemProps {
     todo: Todo;
-    refreshTodos: () => Promise<void>
 }
 
-const TodoItem: React.FC<TodoItemProps> = ({ todo, refreshTodos }) => {
-    const [enabled, setEnabled] = useState(todo.Status === 'done');
-    const [isAddTodoOpen, setIsAddTodoOpen] = useState(false);
+const TodoItem: React.FC<TodoItemProps> = ({ todo }) => {
     const [message, setMessage] = useState('');
+    const [isAddTodoOpen, setIsAddTodoOpen] = useState(false);
+    const [enabled, setEnabled] = useState(todo.Status === 'done');
+    
+    const { dispatch } = useContext(GlobalContext) as GlobalContextType;
+
+    const refreshTodos = async () => {
+        fetchTodos()(dispatch)
+    };
 
     const handleDeleteTodo = async () => {
         try {
@@ -34,6 +41,7 @@ const TodoItem: React.FC<TodoItemProps> = ({ todo, refreshTodos }) => {
 
         try {
             await updateTodo({...todo, Status });
+            setMessage(`TODO marked as ${newStatus ? 'completed' : 'pending'}!`);
         } catch (err) {
             console.error(err);
         }
@@ -76,7 +84,7 @@ const TodoItem: React.FC<TodoItemProps> = ({ todo, refreshTodos }) => {
                 <button type="button" className="inline-flex w-full sm:w-auto justify-center rounded-md px-3 py-2 text-sm font-semibold text-white bg-red-600 shadow-lg shadow-red-500/50 hover:bg-red-500 sm:ml-3 min-w-20" onClick={() => handleDeleteTodo()}>Delete</button>
             </div>
         </div>
-        <AddTodo isOpen={isAddTodoOpen} closeModal={() => setIsAddTodoOpen(false)} todo={todo} refreshTodos={refreshTodos} />
+        <AddTodo isOpen={isAddTodoOpen} closeModal={() => setIsAddTodoOpen(false)} todo={todo} />
         </>
     );
 };
