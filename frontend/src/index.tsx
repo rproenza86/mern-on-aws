@@ -1,12 +1,13 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { Amplify, ResourcesConfig } from 'aws-amplify';
-import awsExports from './aws-exports';
+import { Authenticator } from '@aws-amplify/ui-react';
 
 import './index.css';
 import App from './App';
-import { GlobalProvider } from './state/GlobalContext';
+import awsExports from './aws-exports';
 import reportWebVitals from './reportWebVitals';
+import { GlobalProvider } from './state/GlobalContext';
 
 Amplify.configure(awsExports as unknown as ResourcesConfig);
 
@@ -16,7 +17,9 @@ const root = ReactDOM.createRoot(
 root.render(
   <React.StrictMode>
     <GlobalProvider>
-      <App />
+      <Authenticator.Provider>
+        <App />
+      </Authenticator.Provider>
     </GlobalProvider>
   </React.StrictMode>
 );

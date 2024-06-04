@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Authenticator } from '@aws-amplify/ui-react';
+import { Authenticator, useAuthenticator } from '@aws-amplify/ui-react';
 import '@aws-amplify/ui-react/styles.css';
 
 import './App.css';
@@ -9,6 +9,7 @@ import TodoList from './components/TodoList/TodoList';
 
 const App: React.FC = () => {
   const [isAddTodoOpen, setIsAddTodoOpen] = useState(false);
+  const { user, signOut } = useAuthenticator((context) => [context.user]);
 
   const openAddTodoModal = () => setIsAddTodoOpen(true);
   const closeAddTodoModal = () => setIsAddTodoOpen(false);
@@ -17,8 +18,11 @@ const App: React.FC = () => {
 
   return (
     <Authenticator>
-      <SignUp />
-      <SignIn/>
+
+      {!user && <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+        <SignUp />
+        <SignIn />
+      </div>}
 
       <div className="App">
         <header className="header flex justify-center items-center space-y-4 shadow-lg shadow-blue-200/50">
@@ -26,6 +30,14 @@ const App: React.FC = () => {
             checklist_rtl
           </span>
           <h1 className='raleway-todo'>TODO WeXApp</h1>
+          {user && (
+            <button
+              onClick={signOut}
+              className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline absolute right-6 text-sm"
+            >
+              Logout
+            </button>
+          )}
         </header>
         <div className="container">
           <button
@@ -38,6 +50,8 @@ const App: React.FC = () => {
           <TodoList />
         </div>
       </div>
+
+
     </Authenticator>
   );
 }
