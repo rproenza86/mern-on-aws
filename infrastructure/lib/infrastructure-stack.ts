@@ -5,6 +5,7 @@ import { aws_s3 as s3, aws_cloudfront as cloudfront, aws_s3_deployment as s3depl
 import { BackendConstruct} from './backend-stack';
 import { DataBaseConstruct } from './database-stack';
 import { CognitoConstruct } from './cognito-stack';
+import { S3Construct } from './s3-constructs';
 
 export class TodoAppStack extends cdk.Stack {
   constructor(scope: cdk.App, id: string, props?: cdk.StackProps) {
@@ -50,7 +51,10 @@ export class TodoAppStack extends cdk.Stack {
     // Add Cognito resources
     const cognito = new CognitoConstruct(this, 'CognitoService');
 
+    // Add S3 resources
+    const s3Resource = new S3Construct(this, 'S3Service');
+
     // Add backend resources
-    new BackendConstruct(this, 'BackendServices', { todoTable: db.todoTable,  userPool: cognito.userPool });
+    new BackendConstruct(this, 'BackendServices', { todoTable: db.todoTable,  userPool: cognito.userPool, imageBucket: s3Resource.imageBucket });
   }
 }

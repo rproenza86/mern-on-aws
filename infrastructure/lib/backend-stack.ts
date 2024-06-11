@@ -8,6 +8,7 @@ import { LogGroup } from 'aws-cdk-lib/aws-logs';
 interface BackendConstructProps {
     todoTable: dynamodb.Table;
     userPool: cognito.UserPool;
+    imageBucket: cdk.aws_s3.Bucket;
 }
 
 export class BackendConstruct extends Construct {
@@ -50,8 +51,9 @@ export class BackendConstruct extends Construct {
                 TODO_TABLE_NAME: props.todoTable.tableName
             }
         });
-        // Grant the Lambda function permissions to write to the DynamoDB table
+        // Grant the Lambda function permissions to write to the DynamoDB table and S3 bucket
         props.todoTable.grantWriteData(createTodoLambda);
+        props.imageBucket.grantPut(createTodoLambda);
         // Lambda integration
         const createTodoLambdaIntegration = new LambdaIntegration(createTodoLambda, {
             requestTemplates: { "application/json": '{ "statusCode": 200 }' }
@@ -71,8 +73,9 @@ export class BackendConstruct extends Construct {
                 TODO_TABLE_NAME: props.todoTable.tableName
             }
         });
-        // Grant the Lambda function permissions to read to the DynamoDB table
+        // Grant the Lambda function permissions to read to the DynamoDB table and S3 bucket
         props.todoTable.grantReadData(getTodoLambda);
+        props.imageBucket.grantRead(createTodoLambda);
         // Lambda integration
         const getTodoLambdaIntegration = new LambdaIntegration(getTodoLambda, {
             requestTemplates: { "application/json": '{ "statusCode": 200 }' }
@@ -93,8 +96,9 @@ export class BackendConstruct extends Construct {
                 TODO_TABLE_NAME: props.todoTable.tableName
             }
         });
-        // Grant the Lambda function permissions to delete from the DynamoDB table
+        // Grant the Lambda function permissions to delete from the DynamoDB table and S3 bucket
         props.todoTable.grantReadWriteData(updateTodoLambda);
+        props.imageBucket.grantReadWrite(createTodoLambda);
         // Set up the API Gateway endpoint for DELETE requests
         singleTodoResource.addMethod('PUT', new LambdaIntegration(updateTodoLambda), {
             authorizer,
@@ -111,8 +115,9 @@ export class BackendConstruct extends Construct {
                 TODO_TABLE_NAME: props.todoTable.tableName
             }
         });
-        // Grant the Lambda function permissions to delete from the DynamoDB table
+        // Grant the Lambda function permissions to delete from the DynamoDB table and S3 bucket
         props.todoTable.grantReadWriteData(deleteTodoLambda);
+        props.imageBucket.grantDelete(createTodoLambda);
         // Set up the API Gateway endpoint for DELETE requests
         // <API>/todo/{todoId}
         singleTodoResource.addMethod('DELETE', new LambdaIntegration(deleteTodoLambda), {
