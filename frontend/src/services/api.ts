@@ -1,10 +1,23 @@
+import { fetchAuthSession } from 'aws-amplify/auth';
+
 import { Todos } from "../types";
 
 const API_URL = "https://16i6n18c41.execute-api.us-east-1.amazonaws.com/prod/todo";
 
+const generateRequestConfig = async () => {
+    const session = await fetchAuthSession();
+
+    return {
+        headers: {
+            'Authorization': (session?.tokens?.idToken as unknown as string) ?? '',
+            'Content-Type': 'application/json'
+        }
+    };
+};
 
 export const fetchTodos = async (): Promise<Todos> => {
     const response = await fetch(API_URL);
+
     const todos: Todos = await response.json();
     return todos;
 };
@@ -12,10 +25,8 @@ export const fetchTodos = async (): Promise<Todos> => {
 export const createTodo = async (todo: any): Promise<void> => {
     const response = await fetch(API_URL, {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(todo)
+        body: JSON.stringify(todo),
+        ...await generateRequestConfig()
     });
     if (!response.ok) {
         throw new Error('Failed to create TODO');
@@ -25,6 +36,7 @@ export const createTodo = async (todo: any): Promise<void> => {
 export const deleteTodo = async (todoID: string, createdAt: string): Promise<void> => {
     const response = await fetch(`${API_URL}/${todoID}?createdAt=${createdAt}`, {
         method: 'DELETE',
+        ...(await generateRequestConfig()),
     });
 
     if (!response.ok) {
@@ -40,9 +52,7 @@ export const updateTodo = async (todo: any): Promise<void> => {
     };
     const response = await fetch(`${API_URL}/${todo.TodoID}?createdAt=${todo.CreatedAt}`, {
         method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json'
-        },
+        ...(await generateRequestConfig()),
         body: JSON.stringify(payload)
     });
 

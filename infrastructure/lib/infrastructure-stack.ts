@@ -47,10 +47,10 @@ export class TodoAppStack extends cdk.Stack {
     // Add database resources
     const db = new DataBaseConstruct(this, 'DataBaseService');
 
-    // Add backend resources
-    new BackendConstruct(this, 'BackendServices', { todoTable: db.todoTable });
-
     // Add Cognito resources
-    new CognitoConstruct(this, 'CognitoService');
+    const cognito = new CognitoConstruct(this, 'CognitoService');
+
+    // Add backend resources
+    new BackendConstruct(this, 'BackendServices', { todoTable: db.todoTable,  userPool: cognito.userPool });
   }
 }
