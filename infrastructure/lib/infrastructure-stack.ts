@@ -11,22 +11,15 @@ export class TodoAppStack extends cdk.Stack {
   constructor(scope: cdk.App, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    // S3 bucket for hosting React app
-    const siteBucket = new s3.Bucket(this, 'TodoAppBucket', {
-      websiteIndexDocument: 'index.html',
-      websiteErrorDocument: 'index.html',
-      publicReadAccess: true,
-      removalPolicy: cdk.RemovalPolicy.DESTROY,
-      blockPublicAccess: BlockPublicAccess.BLOCK_ACLS,
-      accessControl: BucketAccessControl.BUCKET_OWNER_FULL_CONTROL,
-    });
+    // Add S3 resources
+    const s3Resource = new S3Construct(this, 'S3Service');
 
     // CloudFront distribution for the S3 bucket
     const distribution = new cloudfront.CloudFrontWebDistribution(this, 'TodoAppDistribution', {
       originConfigs: [
         {
           s3OriginSource: {
-            s3BucketSource: siteBucket
+            s3BucketSource: s3Resource.siteBucket
           },
           behaviors: [{ isDefaultBehavior: true }],
         },
@@ -36,7 +29,7 @@ export class TodoAppStack extends cdk.Stack {
     // Deploy website contents to S3 bucket
     new s3deploy.BucketDeployment(this, 'DeployWebsite', {
       sources: [s3deploy.Source.asset('../frontend/build')],
-      destinationBucket: siteBucket,
+      destinationBucket: s3Resource.siteBucket,
       distribution: distribution,
     });
 
@@ -50,9 +43,6 @@ export class TodoAppStack extends cdk.Stack {
 
     // Add Cognito resources
     const cognito = new CognitoConstruct(this, 'CognitoService');
-
-    // Add S3 resources
-    const s3Resource = new S3Construct(this, 'S3Service');
 
     // Add backend resources
     new BackendConstruct(this, 'BackendServices', { todoTable: db.todoTable,  userPool: cognito.userPool, imageBucket: s3Resource.imageBucket });
