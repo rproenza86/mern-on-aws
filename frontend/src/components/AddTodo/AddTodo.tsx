@@ -1,4 +1,5 @@
 import React, { useRef, useState, Fragment, useContext } from 'react';
+import { FileInput, Label } from "flowbite-react";
 import { ListBulletIcon } from '@heroicons/react/24/solid';
 import { Dialog, Transition, Textarea } from '@headlessui/react';
 
@@ -33,7 +34,7 @@ const AddTodo: React.FC<AddTodoProps> = ({ isOpen, closeModal, todo }) => {
         setFile(null);
         setMessage('');
         setError('');
-        
+
         closeModal();
     };
 
@@ -49,7 +50,7 @@ const AddTodo: React.FC<AddTodoProps> = ({ isOpen, closeModal, todo }) => {
                 Status: status,
             };
 
-            if(file) {
+            if (file) {
                 const { presignedUrl, fileUrl } = await fetchPresignedS3Url();
                 await uploadFile(presignedUrl, file);
 
@@ -70,7 +71,7 @@ const AddTodo: React.FC<AddTodoProps> = ({ isOpen, closeModal, todo }) => {
             refreshTodos();
             cleanup();
         } catch (err) {
-            console.log('Error ',err);
+            console.log('Error ', err);
             setError('Failed to add TODO.');
         }
     };
@@ -139,13 +140,10 @@ const AddTodo: React.FC<AddTodoProps> = ({ isOpen, closeModal, todo }) => {
                                                         />
                                                     </div>
                                                     <div className="mb-4">
-                                                        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="file">Upload File</label>
-                                                        <input
-                                                            id="file"
-                                                            type="file"
-                                                            onChange={(e) => setFile(e.target.files ? e.target.files[0] : null)}
-                                                            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                                                        />
+                                                        <div className="mb-2 block">
+                                                            <Label htmlFor="file-upload" value="Upload file" />
+                                                        </div>
+                                                        <FileInput id="file-upload" onChange={(e) => setFile(e.target.files ? e.target.files[0] : null)} />
                                                     </div>
                                                 </div>
 
