@@ -11,6 +11,7 @@ export interface TodoItem {
     Description: string;
     Status?: string; // Optional because a default value is set if not provided
     UserID: string;
+    FileUrl?: string;
 }
 
 export const handler: APIGatewayProxyHandler = async (event) => {
@@ -35,6 +36,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
             Item: {
                 TodoID: todoID,
                 Title: data.Title,
+                FileUrl: data.FileUrl,
                 Description: data.Description,
                 UserID: decodedToken.payload.sub,
                 Status: data.Status ?? 'pending', // Default status

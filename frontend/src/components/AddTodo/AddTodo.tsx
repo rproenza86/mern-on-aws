@@ -5,7 +5,7 @@ import { Dialog, Transition, Textarea } from '@headlessui/react';
 import { Todo } from '../../types';
 import SuccessToast from '../Toasts/SuccessToast';
 import { fetchTodos } from '../../state/ActionCreators';
-import { createTodo, updateTodo } from '../../services/api';
+import { createTodo, fetchPresignedS3Url, updateTodo, uploadFile } from '../../services/api';
 import { GlobalContext, GlobalContextType } from '../../state/GlobalContext';
 
 interface AddTodoProps {
@@ -19,11 +19,22 @@ const AddTodo: React.FC<AddTodoProps> = ({ isOpen, closeModal, todo }) => {
     const [title, setTitle] = useState(todo?.Title ?? '');
     const [description, setDescription] = useState(todo?.Description ?? '');
     const [status] = useState(todo?.Status ?? 'pending');
+    const [file, setFile] = useState<File | null>(null);
     const [message, setMessage] = useState('');
-    const [error, setError] = useState('');
+    const [_error, setError] = useState('');
 
     const refreshTodos = async () => {
-        fetchTodos()(dispatch)
+        fetchTodos()(dispatch);
+    };
+
+    const cleanup = () => {
+        setTitle('');
+        setDescription('');
+        setFile(null);
+        setMessage('');
+        setError('');
+        
+        closeModal();
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -38,6 +49,13 @@ const AddTodo: React.FC<AddTodoProps> = ({ isOpen, closeModal, todo }) => {
                 Status: status,
             };
 
+            if(file) {
+                const { presignedUrl, fileUrl } = await fetchPresignedS3Url();
+                await uploadFile(presignedUrl, file);
+
+                todoPayload['FileUrl'] = fileUrl;
+            }
+
             if (todo) {
                 todoPayload['TodoID'] = todo.TodoID;
                 todoPayload['CreatedAt'] = todo.CreatedAt;
@@ -50,12 +68,9 @@ const AddTodo: React.FC<AddTodoProps> = ({ isOpen, closeModal, todo }) => {
             }
 
             refreshTodos();
-
-            setTitle('');
-            setDescription('');
-
-            closeModal();
+            cleanup();
         } catch (err) {
+            console.log('Error ',err);
             setError('Failed to add TODO.');
         }
     };
@@ -66,7 +81,7 @@ const AddTodo: React.FC<AddTodoProps> = ({ isOpen, closeModal, todo }) => {
         <>
             {message && <SuccessToast message={message} onClose={() => setMessage('')} />}
             <Transition.Root show={isOpen} as={Fragment}>
-                <Dialog className="relative z-10" initialFocus={cancelButtonRef} onClose={closeModal}>
+                <Dialog className="relative z-10" initialFocus={cancelButtonRef} onClose={cleanup}>
                     <Transition.Child
                         as={Fragment}
                         enter="ease-out duration-300"
@@ -121,6 +136,15 @@ const AddTodo: React.FC<AddTodoProps> = ({ isOpen, closeModal, todo }) => {
                                                             onChange={(e) => setDescription(e.target.value)}
                                                             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                                                             required
+                                                        />
+                                                    </div>
+                                                    <div className="mb-4">
+                                                        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="file">Upload File</label>
+                                                        <input
+                                                            id="file"
+                                                            type="file"
+                                                            onChange={(e) => setFile(e.target.files ? e.target.files[0] : null)}
+                                                            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                                                         />
                                                     </div>
                                                 </div>

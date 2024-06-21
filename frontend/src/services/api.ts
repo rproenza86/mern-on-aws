@@ -2,24 +2,42 @@ import { fetchAuthSession } from 'aws-amplify/auth';
 
 import { Todos } from "../types";
 
-const API_URL = "https://16i6n18c41.execute-api.us-east-1.amazonaws.com/prod/todo";
+const API_URL = "https://kraypxdw7f.execute-api.us-east-1.amazonaws.com/prod/todo";
 
 const generateRequestConfig = async () => {
     const session = await fetchAuthSession();
 
     return {
         headers: {
-            'Authorization': (session?.tokens?.idToken as unknown as string) ?? '',
-            'Content-Type': 'application/json'
+            'Authorization': (session?.tokens?.idToken as unknown as string) ?? ''
         }
     };
 };
 
 export const fetchTodos = async (): Promise<Todos> => {
-    const response = await fetch(API_URL);
+    const response = await fetch(API_URL,{ ...await generateRequestConfig() });
 
     const todos: Todos = await response.json();
     return todos;
+};
+
+type PresignedUrlData = {
+    presignedUrl: string;
+    fileUrl: string;
+};
+
+export const fetchPresignedS3Url = async (): Promise<PresignedUrlData> => {
+    const response = await fetch(API_URL + '/s3PresignedUrl',{ ...await generateRequestConfig() });
+
+    const todos: PresignedUrlData = await response.json();
+    return todos;
+};
+
+export const uploadFile = async (toPresignedUrl: string, file: File): Promise<void> => {
+    await fetch(toPresignedUrl, { 
+        method: 'PUT', 
+        body: file,
+    });
 };
 
 export const createTodo = async (todo: any): Promise<void> => {

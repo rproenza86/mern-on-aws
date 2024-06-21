@@ -25,22 +25,60 @@ export class BackendConstruct extends Construct {
                 allowMethods: Cors.ALL_METHODS
             },
             deployOptions: {
+                loggingLevel: MethodLoggingLevel.INFO,
+                dataTraceEnabled: true,
                 tracingEnabled: true, // Enable X-Ray Tracing
                 // enable CloudWatch Log
                 accessLogDestination: new LogGroupLogDestination(new LogGroup(this, 'ApiAccessLogGroup', {
                     logGroupName: `/aws/api-gw-todo-service`,
                     removalPolicy: cdk.RemovalPolicy.DESTROY
                 })),
+                accessLogFormat: AccessLogFormat.jsonWithStandardFields({
+                    caller: true,
+                    httpMethod: true,
+                    ip: true,
+                    protocol: true,
+                    requestTime: true,
+                    resourcePath: true,
+                    responseLength: true,
+                    status: true,
+                    user: true,
+                }),
             }
         });
         // Define the /todo resource path
         const todoResource = api.root.addResource('todo');
         const singleTodoResource = todoResource.addResource('{todoId}');
+        const genPresignedUrl = todoResource.addResource('s3PresignedUrl');
 
         // Create the Cognito Authorizer
         const authorizer = new CognitoUserPoolsAuthorizer(this, 'CognitoAuthorizer', {
             cognitoUserPools: [props.userPool]
         });
+
+        // Create the GET /todo/s3PresignedUrl lambda function
+        const genPresignedUrlLambda = new lambda.Function(this, 'GenPresignedUrlLambda', {
+            runtime: lambda.Runtime.NODEJS_20_X,
+            handler: 'genPresignedUrl.handler', // This should match your file name and export
+            code: lambda.Code.fromAsset('../backend/dist/lambdas/s3'), // Path to the Lambda code
+            environment: {
+                BUCKET_NAME: props.imageBucket.bucketName
+            }
+        });
+        // Grant the Lambda function permission to generate presigned URLs from S3 bucket    
+        props.imageBucket.grantPutAcl(genPresignedUrlLambda); 
+        props.imageBucket.grantReadWrite(genPresignedUrlLambda);
+        
+        // Lambda integration
+        const getGenPresignedUrlLambda = new LambdaIntegration(genPresignedUrlLambda, {
+            requestTemplates: { "application/json": '{ "statusCode": 200 }' }
+        });
+        // Adding GET method to /todo resource to fetch all TODOs
+        genPresignedUrl.addMethod('GET', getGenPresignedUrlLambda, {
+            authorizer,
+            authorizationType: AuthorizationType.COGNITO
+        });
+
 
         // Create TODO Lambda function
         const createTodoLambda = new lambda.Function(this, 'CreateTodoLambda', {
@@ -48,7 +86,8 @@ export class BackendConstruct extends Construct {
             handler: 'createTodo.handler', // This should match your file name and export
             code: lambda.Code.fromAsset('../backend/dist/lambdas/todos'), // Path to the Lambda code
             environment: {
-                TODO_TABLE_NAME: props.todoTable.tableName
+                TODO_TABLE_NAME: props.todoTable.tableName,
+                BUCKET_NAME: props.imageBucket.bucketName
             }
         });
         // Grant the Lambda function permissions to write to the DynamoDB table and S3 bucket
@@ -61,7 +100,15 @@ export class BackendConstruct extends Construct {
         // Adding POST method to /todo resource to create a TODO
         todoResource.addMethod('POST', createTodoLambdaIntegration, {
             authorizer,
-            authorizationType: AuthorizationType.COGNITO
+            authorizationType: AuthorizationType.COGNITO,
+            methodResponses: [{
+                statusCode: '200',
+                responseParameters: {
+                    'method.response.header.Access-Control-Allow-Headers': true,
+                    'method.response.header.Access-Control-Allow-Methods': true,
+                    'method.response.header.Access-Control-Allow-Origin': true,
+                }
+            }]
         });
 
         // GET TODO Lambda function
