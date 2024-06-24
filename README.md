@@ -1,7 +1,7 @@
 # Project README - TODO Web App
 
 ## Overview
-This project is a MERN stack web application designed to manage TODO tasks. It is hosted on AWS and utilizes various services and technologies for a robust, scalable application.
+This project is a monorepo MERN stack web application designed to manage TODO tasks. It is hosted on AWS and utilizes various services and technologies for a robust, scalable application.
 
 ## Features
 The application supports the following features:
@@ -10,6 +10,7 @@ The application supports the following features:
 - Secure and scalable hosting on AWS.
 
 ## Technical Details
+
 ### Frontend
 
 #### Technologies & Libraries
@@ -27,26 +28,36 @@ The application supports the following features:
 - Node.js: JavaScript runtime built on Chrome's V8 JavaScript engine.
 - AWS Lambda: Event-driven, serverless computing service.
 - AWS API Gateway: Fully managed service that makes it easy for developers to create, publish, maintain, monitor, and secure APIs.
+- Amazon Cognito: Provides user authentication and authorization.
 
 #### Lambda Functions
 - CreateTodoLambda: Handles the creation of new TODO tasks.
 - GetTodosLambda: Retrieves all TODO tasks.
 - UpdateTodoLambda: Updates existing TODO tasks.
 - DeleteTodoLambda: Deletes TODO tasks.
+- GenPresignedUrlLambda: Generates presigned URLs for S3 uploads.
 
 ### Infrastructure
 
 #### Technologies & Frameworks
-- AWS CDK: Framework for defining cloud infra using familiar programming languages.
+- AWS CDK: Framework for defining cloud infrastructure using familiar programming languages.
 - Amazon DynamoDB: NoSQL database service that provides fast and predictable performance with seamless scalability.
+- Amazon S3: Object storage service that offers industry-leading scalability, data availability, security, and performance.
 
 #### Key Constructs
 - BackendConstruct: Sets up the backend services including Lambda functions and API Gateway.
 - DataBaseConstruct: Manages the DynamoDB resources.
+- S3Construct: Manages the S3 buckets for static file hosting and image uploads.
 
 #### Deployment
 - S3 Bucket: Hosts the static files for the frontend.
 - CloudFront: CDN service that securely delivers data, videos, applications, and APIs to customers globally.
+
+### Security
+
+#### Authentication & Authorization
+- **Amazon Cognito**: Used for user authentication and authorization.
+- **API Gateway Authorizers**: Secures API endpoints using Cognito user pools.
 
 ### Programming Techniques
 - **Infrastructure as Code (IaC)**: Using AWS CDK to define and provision AWS infrastructure.
