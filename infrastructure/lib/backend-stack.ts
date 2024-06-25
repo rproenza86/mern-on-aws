@@ -61,6 +61,7 @@ export class BackendConstruct extends Construct {
             runtime: lambda.Runtime.NODEJS_20_X,
             handler: 'genPresignedUrl.handler', // This should match your file name and export
             code: lambda.Code.fromAsset('../backend/dist/lambdas/s3'), // Path to the Lambda code
+            tracing: lambda.Tracing.ACTIVE,
             environment: {
                 BUCKET_NAME: props.imageBucket.bucketName
             }
@@ -85,6 +86,7 @@ export class BackendConstruct extends Construct {
             runtime: lambda.Runtime.NODEJS_20_X,
             handler: 'createTodo.handler', // This should match your file name and export
             code: lambda.Code.fromAsset('../backend/dist/lambdas/todos'), // Path to the Lambda code
+            tracing: lambda.Tracing.ACTIVE,
             environment: {
                 TODO_TABLE_NAME: props.todoTable.tableName,
                 BUCKET_NAME: props.imageBucket.bucketName
@@ -116,6 +118,7 @@ export class BackendConstruct extends Construct {
             runtime: lambda.Runtime.NODEJS_20_X,
             handler: 'getTodos.handler', // This should match your file name and export
             code: lambda.Code.fromAsset('../backend/dist/lambdas/todos'), // Path to the Lambda code
+            tracing: lambda.Tracing.ACTIVE,
             environment: {
                 TODO_TABLE_NAME: props.todoTable.tableName
             }
@@ -139,6 +142,7 @@ export class BackendConstruct extends Construct {
             runtime: lambda.Runtime.NODEJS_20_X,
             handler: 'updateTodo.handler',
             code: lambda.Code.fromAsset('../backend/dist/lambdas/todos'),
+            tracing: lambda.Tracing.ACTIVE,
             environment: {
                 TODO_TABLE_NAME: props.todoTable.tableName
             }
@@ -158,6 +162,7 @@ export class BackendConstruct extends Construct {
             runtime: lambda.Runtime.NODEJS_20_X,
             handler: 'deleteTodo.handler',
             code: lambda.Code.fromAsset('../backend/dist/lambdas/todos'),
+            tracing: lambda.Tracing.ACTIVE,
             environment: {
                 TODO_TABLE_NAME: props.todoTable.tableName
             }

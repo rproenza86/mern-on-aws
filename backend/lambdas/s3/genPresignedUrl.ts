@@ -1,10 +1,11 @@
 import { v4 as uuidv4 } from 'uuid';
+import * as AWSXRay from 'aws-xray-sdk';
 import { APIGatewayProxyHandler } from 'aws-lambda';
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 
-const client = new S3Client();
-const bucketName = process.env.BUCKET_NAME || '';
+const client = AWSXRay.captureAWSv3Client(new S3Client());
+const bucketName = process.env.BUCKET_NAME ?? '';
 
 export const handler: APIGatewayProxyHandler = async (event) => {
   const fileKey = uuidv4();

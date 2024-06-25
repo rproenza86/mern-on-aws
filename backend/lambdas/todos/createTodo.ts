@@ -1,7 +1,10 @@
-import { APIGatewayProxyHandler } from 'aws-lambda';
-import * as AWS from 'aws-sdk';
+import * as AWS_RAW from 'aws-sdk';
+import * as AWSXRay from 'aws-xray-sdk';
 import { v4 as uuidv4 } from 'uuid';
 import * as jwt from 'jsonwebtoken';
+import { APIGatewayProxyHandler } from 'aws-lambda';
+
+const AWS = AWSXRay.captureAWS(AWS_RAW);
 
 const dynamoDb = new AWS.DynamoDB.DocumentClient();
 const TABLE_NAME = process.env.TODO_TABLE_NAME ?? '';

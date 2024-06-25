@@ -1,3 +1,4 @@
+import { v4 as uuidv4 } from 'uuid';
 import { fetchAuthSession } from 'aws-amplify/auth';
 
 import { Todos } from "../types";
@@ -6,10 +7,12 @@ const API_URL = "https://kraypxdw7f.execute-api.us-east-1.amazonaws.com/prod/tod
 
 const generateRequestConfig = async () => {
     const session = await fetchAuthSession();
+    const traceId = `1-${Math.floor(Date.now() / 1000).toString(16)}-${uuidv4().replace(/-/g, '').substring(0, 24)}`;
 
     return {
         headers: {
-            'Authorization': (session?.tokens?.idToken as unknown as string) ?? ''
+            'Authorization': (session?.tokens?.idToken as unknown as string) ?? '',
+            'X-Amzn-Trace-Id': `Root=${traceId}`
         }
     };
 };
