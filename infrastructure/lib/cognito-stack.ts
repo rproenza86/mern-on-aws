@@ -5,6 +5,7 @@ import { Construct } from 'constructs';
 export class CognitoConstruct extends Construct {
     public readonly userPool: cognito.UserPool;
     public readonly userPoolClient: cognito.UserPoolClient;
+    public readonly identityPool: cognito.CfnIdentityPool;
 
     constructor(scope: Construct, id: string) {
         super(scope, id);
@@ -30,6 +31,16 @@ export class CognitoConstruct extends Construct {
             generateSecret: false,
         });
 
+        // Create an Identity Pool
+        this.identityPool = new cognito.CfnIdentityPool(this, 'IdentityPool', {
+            allowUnauthenticatedIdentities: true,
+            cognitoIdentityProviders: [{
+            clientId: this.userPoolClient.userPoolClientId,
+            providerName: this.userPool.userPoolProviderName,
+            }],
+        });
+  
+
         // User Pool and Client Details
         new cdk.CfnOutput(this, 'UserPoolId', {
             value: this.userPool.userPoolId,
@@ -37,6 +48,11 @@ export class CognitoConstruct extends Construct {
 
         new cdk.CfnOutput(this, 'UserPoolClientId', {
             value: this.userPoolClient.userPoolClientId,
+        });
+
+        // Identity Pool Details
+        new cdk.CfnOutput(this, 'IdentityPoolId', {
+            value: this.identityPool.ref,
         });
     }
 }
