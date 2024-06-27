@@ -8,8 +8,10 @@
     "build": "tsc",
     "watch": "tsc -w",
     "test": "jest",
-    "deploy": "cdk deploy",
-    "destroy": "cdk destroy",
+    "deploy": "cdk deploy RaulTodoApp",
+    "deploy:ci": "cdk deploy RaulTodoAppCiCd",
+    "destroy": "cdk destroy RaulTodoApp",
+    "destroy:ci": "cdk destroy RaulTodoAppCiCd",
     "synth": "cdk synth"
   },
   "devDependencies": {

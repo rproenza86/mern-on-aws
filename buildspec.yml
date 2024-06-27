@@ -1,0 +1,16 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 14
+    commands:
+      - npm install -g aws-cdk
+      - npm run cicd:install
+  build:
+    commands:
+      - npm run deploy
+artifacts:
+  files:
+    - '**/*'
+  base-directory: 'infrastructure/cdk.out'
