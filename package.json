@@ -7,8 +7,8 @@
     "synth": "cd infrastructure && npm run synth",
     "backend:build": "cd backend && npm run build",
     "frontend:build": "cd frontend && npm run build",
-    "deploy": "cd backend && npm run build && cd .. && cd frontend && npm run build && cd .. && cd infrastructure && npm run deploy",
-    "cicd:install": "cd backend && npm ci && cd .. && cd frontend && npm ci && cd .. && cd infrastructure && npm ci && cd ..",
+    "deploy": "sh ./scripts/deploy.sh",
+    "cicd:install": "sh ./scripts/cicd_install.sh",
     "destroy": "cd infrastructure && npm run destroy"
   },
   "keywords": [],
