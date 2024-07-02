@@ -29,16 +29,14 @@ export class CiCdStack extends cdk.Stack {
               'npm install -g aws-cdk',
               'npm install -g tsc',
               'npm run cicd:install',
-            ],
-          },
-          build: {
-            commands: [
               'npm run deploy'
             ],
-            dependencies: [
-              'install'
-            ]
           },
+          // build: {
+          //   commands: [
+          //     'npm run deploy'
+          //   ]
+          // },
         },
         artifacts: {
           'base-directory': '.',
