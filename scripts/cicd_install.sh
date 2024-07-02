@@ -1,3 +1,5 @@
+export CI=false
+
 cd backend
 npm ci 
 cd ..
