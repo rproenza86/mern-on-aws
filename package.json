@@ -9,7 +9,8 @@
     "frontend:build": "cd frontend && npm run build",
     "deploy": "sh ./scripts/deploy.sh",
     "cicd:install": "sh ./scripts/cicd_install.sh",
-    "destroy": "cd infrastructure && npm run destroy"
+    "destroy": "cd infrastructure && npm run destroy",
+    "deploy:ci": "cd infrastructure && npm run deploy:ci"
   },
   "keywords": [],
   "author": "",

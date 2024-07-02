@@ -9,3 +9,5 @@ cd ..
 cd infrastructure 
 npm ci 
 cd ..
+
+echo "Dependencies installed"

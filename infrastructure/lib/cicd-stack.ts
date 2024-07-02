@@ -27,6 +27,7 @@ export class CiCdStack extends cdk.Stack {
           install: {
             commands: [
               'npm install -g aws-cdk',
+              'npm install -g tsc',
               'npm run cicd:install',
             ],
           },
