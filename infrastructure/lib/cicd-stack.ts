@@ -34,6 +34,9 @@ export class CiCdStack extends cdk.Stack {
             commands: [
               'npm run deploy'
             ],
+            dependencies: [
+              'install'
+            ]
           },
         },
         artifacts: {
